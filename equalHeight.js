@@ -1,83 +1,63 @@
 (function($) {
-    var EqualHeight = {
-        elements: $(),
-        bindEvents: function() {
-            var self = this;
-
-            $(window).on('resize', self, self.eventCallbacks.onWindowResize);
-        },
-        eventCallbacks: {
-            onWindowResize: function(e) {
-                var self = e.data;
-
-                self.calculateEqualHeights();
-            }
-        },
-        calculateEqualHeights: function() {
-            var self = this;
+    $.fn.equalHeight = function(options) {
+        var self = this;
+        
+        // Extend basic / default configuration
+        options = $.extend({
+            defaultGroup: 'eqh-default',
+            groupAttr: 'data-eqh'
+        }, options || {});
+        
+        // Create resize event listener
+        $(window).on('resize', self, function() {
+            self.calculateEqualHeights();
+        });
+        
+        // Recalculate heights
+        self.calculateEqualHeights = function() {
             var equalHeightGroups = {};
 
             // Responsive float-Fix
-            self.elements.height(1);
+            this.height(1);
 
-            // Group Elements by offset top
-            self.elements.each(function() {
-                var y = $(this).offset().top;
-
-                equalHeightGroups[y] = equalHeightGroups[y] || $();
-                equalHeightGroups[y] = equalHeightGroups[y].add(this);
+            // Group Elements
+            this.each(function() {
+                var offset = $(this).offset().top,
+                    group  = $(this).attr(options.groupAttr) || options.defaultGroup;
+                
+                equalHeightGroups[group]         = equalHeightGroups[group] || {};
+                equalHeightGroups[group][offset] = equalHeightGroups[group][offset] || $();
+                equalHeightGroups[group][offset] = equalHeightGroups[group][offset].add(this);
             });
+            
+            // Reset element height to `auto`
+            this.css('height', 'auto');
+            
+            $.each(equalHeightGroups, function(name, group) {
+                $.each(group, function(offset, elements) {
+                    var height = 0;
 
-            $.each(equalHeightGroups, function(y, elements) {
-                var height = 0;
+                    // Find the max height
+                    elements.each(function() {
+                        var outerHeight = $(this).outerHeight();
 
-                // Reset element height to `auto`
-                elements.css('height', 'auto');
+                        if (outerHeight > height) {
+                            height = outerHeight;
+                        }
+                    });
 
-                // Find the max height
-                elements.each(function() {
-                    var outerHeight = $(this).outerHeight();
+                    // Calculate the new height of each element (height without padding and border)
+                    elements.each(function() {
+                        var element = $(this),
+                            negative = element.outerHeight() - element.height();
 
-                    if (outerHeight > height) {
-                        height = outerHeight;
-                    }
-                });
-
-                // Calculate the new height of each element (height without padding and border)
-                elements.each(function() {
-                    var self = $(this),
-                        negative = self.outerHeight() - self.height();
-
-                    self.height(height - negative);
+                        element.height(height - negative);
+                    });
                 });
             });
-        },
-        add: function(elements) {
-            var self = this;
-
-            self.remove(elements);
-            self.elements = self.elements.add(elements);
-
-            self.calculateEqualHeights();
-        },
-        remove: function(elements) {
-            var self = this;
-
-            self.elements = self.elements.not(elements);
-        }
-    };
-
-    $.fn.equalHeight = (function(EqualHeight) {
-        EqualHeight.bindEvents();
-
-        return function(method) {
-            switch (method) {
-                case 'destroy':
-                    EqualHeight.remove(this);
-                    break;
-                default:
-                    EqualHeight.add(this);
-            }
         };
-    }(EqualHeight));
-}(jQuery));
+        
+        // Initial height calculation
+        self.calculateEqualHeights();
+    };
+})(jQuery);
