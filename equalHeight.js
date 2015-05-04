@@ -1,4 +1,4 @@
-(function($) {
+;(function($) {
     $.fn.equalHeight = function(options) {
         var self = this;
         
