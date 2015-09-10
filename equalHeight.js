@@ -1,6 +1,7 @@
 ;(function($) {
     $.fn.equalHeight = function(options) {
-        var self = this;
+        var self        = this,
+            windowWidth = $(window).width();
 
         // Extend basic / default configuration
         options = $.extend({
@@ -10,7 +11,13 @@
 
         // Create resize event listener
         $(window).on('resize', self, function() {
-            self.calculateEqualHeights();
+          var newWindowWidth = $(window).width();
+
+          // Only recalculate on horizontal resize
+          if (windowWidth != newWindowWidth) {
+              windowWidth = newWindowWidth;
+              self.calculateEqualHeights();
+          }
         });
 
         // Recalculate heights
