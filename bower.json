@@ -1,7 +1,7 @@
 {
   "name": "equalHeight.js",
-  "main": "equalHeight.js",
-  "version": "2.1.0",
+  "main": "jquery.equal-height.js",
+  "version": "3.0.0",
   "homepage": "https://github.com/FlorianKoerner/equalHeight.js",
   "authors": [
     "Florian Körner <contact@florian-koerner.eu>"
@@ -13,15 +13,16 @@
     "html",
     "height",
     "jquery",
-    "plugin"
+    "plugin",
+    "flexbox",
+    "responsive"
   ],
   "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+    "typings",
+    "tsd.json"
   ],
   "dependencies": {
       "jquery": ">=1.9"
