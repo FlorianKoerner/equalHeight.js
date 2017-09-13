@@ -8,7 +8,9 @@ Responsive Ready!
 
 # How to use
 
-- Install via bower: `bower install equalHeight.js` 
+- Install via bower: `bower install equalHeight.js`
+- Install via npm: `npm install equalheight.js`
+- Install via yarn: `yarn install equalheight.js`
 - Or download the [jquery.equal-height.min.js](jquery.equal-height.min.js) directly.
 
 Link jQuery and equalHeight.js in your document:

@@ -1,7 +1,8 @@
 /*!
+ * @license
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Florian Körner
+ * Copyright (c) 2015 - 2017 Florian Körner
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,21 +22,67 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/// <reference path="typings/tsd.d.ts" />
 var EqualHeight;
 (function (EqualHeight) {
-    var Plugin = (function () {
+    var MODE_OFFSET = 'offset';
+    var MODE_GROUP = 'group';
+    var Plugin = /** @class */ (function () {
         function Plugin(elements, options) {
             this.elements = elements;
             // Contains last windowWith
             this.windowWidth = jQuery(window).width();
             this.options = jQuery.extend({
                 defaultGroup: 'eqh-default',
-                groupAttr: 'data-eqh'
+                defaultMode: 'offset',
+                groupAttr: 'data-eqh',
+                modeAttr: 'data-eqh-mode'
             }, options || {});
             this.registerListener();
-            this.calculateEqualHeights();
+            this.recalculate();
         }
+        // Recalculate heights
+        Plugin.prototype.recalculate = function () {
+            var _this = this;
+            var equalHeightGroups = {};
+            // Responsive float-Fix
+            this.elements.height(1);
+            // Group Elements
+            this.elements.each(function (key, val) {
+                var element = jQuery(val), offset = 0, group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode;
+                if (mode === MODE_OFFSET) {
+                    offset = Math.floor(element.offset().top);
+                }
+                equalHeightGroups[group] = equalHeightGroups[group] || {};
+                equalHeightGroups[group][mode] = equalHeightGroups[group][mode] || {};
+                equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset] || jQuery();
+                equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset].add(val);
+            });
+            // Reset element height to `auto`
+            this.elements.css('height', 'auto');
+            jQuery.each(equalHeightGroups, function (group, modes) {
+                jQuery.each(modes, function (mode, offsets) {
+                    jQuery.each(offsets, function (offset, elements) {
+                        _this.recalculateElements(elements);
+                    });
+                });
+            });
+        };
+        // Recalculate elements heights
+        Plugin.prototype.recalculateElements = function (elements) {
+            var maxHeight = 0;
+            // Find the max height
+            elements.each(function (key, val) {
+                var outerHeight = Math.round(jQuery(val).outerHeight());
+                if (outerHeight > maxHeight) {
+                    maxHeight = outerHeight;
+                }
+            });
+            // Calculate the new height of each element (height without padding and border)
+            elements.each(function (key, val) {
+                var element = jQuery(val), negative = element.outerHeight() - element.height();
+                element.height(maxHeight - negative);
+            });
+        };
         Plugin.prototype.registerListener = function () {
             var _this = this;
             // Create resize event listener
@@ -44,49 +91,15 @@ var EqualHeight;
                 // Only recalculate on horizontal resize
                 if (_this.windowWidth != newWindowWidth) {
                     _this.windowWidth = newWindowWidth;
-                    _this.calculateEqualHeights();
+                    _this.recalculate();
                 }
             });
         };
-        // Recalculate heights
-        Plugin.prototype.calculateEqualHeights = function () {
-            var _this = this;
-            var equalHeightGroups = {};
-            // Responsive float-Fix
-            this.elements.height(1);
-            // Group Elements
-            this.elements.each(function (key, val) {
-                var element = jQuery(val), offset = Math.floor(element.offset().top), group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup;
-                equalHeightGroups[group] = equalHeightGroups[group] || {};
-                equalHeightGroups[group][offset] = equalHeightGroups[group][offset] || jQuery();
-                equalHeightGroups[group][offset] = equalHeightGroups[group][offset].add(val);
-            });
-            // Reset element height to `auto`
-            this.elements.css('height', 'auto');
-            jQuery.each(equalHeightGroups, function (name, group) {
-                jQuery.each(group, function (offset, elements) {
-                    var maxHeight = 0;
-                    // Find the max height
-                    elements.each(function (key, val) {
-                        var outerHeight = Math.round(jQuery(val).outerHeight());
-                        if (outerHeight > maxHeight) {
-                            maxHeight = outerHeight;
-                        }
-                    });
-                    // Calculate the new height of each element (height without padding and border)
-                    elements.each(function (key, val) {
-                        var element = jQuery(val), negative = element.outerHeight() - element.height();
-                        element.height(maxHeight - negative);
-                    });
-                });
-            });
-        };
-        ;
         return Plugin;
-    })();
+    }());
     EqualHeight.Plugin = Plugin;
 })(EqualHeight || (EqualHeight = {}));
 // Register jQuery-Plugin
 jQuery.fn.equalHeight = function (options) {
-    new EqualHeight.Plugin(jQuery(this), options);
+    return new EqualHeight.Plugin(jQuery(this), options);
 };

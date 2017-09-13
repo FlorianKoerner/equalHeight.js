@@ -1,0 +1,39 @@
+{
+  "name": "equalheight",
+  "version": "4.0.0",
+  "description": "jQuery-Plugin for equal boxes heights",
+  "main": "jquery.equal-height.js",
+  "scripts": {
+    "build": "npm run-script typescript && npm run-script uglify",
+    "typescript": "./node_modules/.bin/tsc jquery.equal-height.ts",
+    "uglify": "./node_modules/.bin/uglifyjs --comments=\"some\" jquery.equal-height.js > jquery.equal-height.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlorianKoerner/equalHeight.js.git"
+  },
+  "keywords": [
+    "equal",
+    "css",
+    "html",
+    "height",
+    "jquery",
+    "plugin",
+    "flexbox",
+    "responsive"
+  ],
+  "author": "Florian Körner <contact@florian-koerner.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FlorianKoerner/equalHeight.js/issues"
+  },
+  "homepage": "https://github.com/FlorianKoerner/equalHeight.js#readme",
+  "dependencies": {
+    "jquery": ">=1.9"
+  },
+  "devDependencies": {
+    "@types/jquery": "^1.10.33",
+    "typescript": "^2.5.2",
+    "uglify-js": "^3.1.0"
+  }
+}

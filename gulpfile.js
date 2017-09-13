@@ -17,7 +17,9 @@ gulp.task('minify', function() {
 	return gulp
 		.src('./jquery.equal-height.js')
 		.pipe(uglify({
-			preserveComments: 'license'
+			output: {
+				comments: 'some'
+			}
 		}))
 		.pipe(rename('jquery.equal-height.min.js'))
 		.pipe(gulp.dest('./'));
