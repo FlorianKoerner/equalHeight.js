@@ -1,5 +1,5 @@
 {
-  "name": "equalheight",
+  "name": "equalheight.js",
   "version": "4.0.0",
   "description": "jQuery-Plugin for equal boxes heights",
   "main": "jquery.equal-height.js",
