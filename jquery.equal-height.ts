@@ -34,8 +34,10 @@ namespace EqualHeight {
     export interface Options {
         defaultGroup?: string;
         defaultMode?: string;
+        defaultHidden?: boolean;
         groupAttr?: string;
         modeAttr?: string;
+        hiddenAttr?: string;
     }
 
     export class Plugin {
@@ -49,8 +51,10 @@ namespace EqualHeight {
             this.options = jQuery.extend({
                 defaultGroup: 'eqh-default',
                 defaultMode: 'offset',
+                defaultHidden: false,
                 groupAttr: 'data-eqh',
-                modeAttr: 'data-eqh-mode'
+                modeAttr: 'data-eqh-mode',
+                hiddenAttr: 'data-eqh-hidden'
             }, options || {});
 
             this.registerListener();
@@ -70,7 +74,12 @@ namespace EqualHeight {
                 var element = jQuery(val),
                     offset = 0,
                     group = element.attr(this.options.groupAttr) || this.options.defaultGroup,
-                    mode = element.attr(this.options.modeAttr) || this.options.defaultMode;
+                    mode = element.attr(this.options.modeAttr) || this.options.defaultMode,
+                    hidden = element.attr(this.options.hiddenAttr) === 'true' || this.options.defaultHidden;
+
+                if (false === hidden && element.is(':hidden')) {
+                    return;
+                }
 
                 if (mode === MODE_OFFSET) {
                     offset = Math.floor(element.offset().top);

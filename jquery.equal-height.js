@@ -34,8 +34,10 @@ var EqualHeight;
             this.options = jQuery.extend({
                 defaultGroup: 'eqh-default',
                 defaultMode: 'offset',
+                defaultHidden: false,
                 groupAttr: 'data-eqh',
-                modeAttr: 'data-eqh-mode'
+                modeAttr: 'data-eqh-mode',
+                hiddenAttr: 'data-eqh-hidden'
             }, options || {});
             this.registerListener();
             this.recalculate();
@@ -48,7 +50,10 @@ var EqualHeight;
             this.elements.height(1);
             // Group Elements
             this.elements.each(function (key, val) {
-                var element = jQuery(val), offset = 0, group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode;
+                var element = jQuery(val), offset = 0, group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode, hidden = element.attr(_this.options.hiddenAttr) === 'true' || _this.options.defaultHidden;
+                if (false === hidden && element.is(':hidden')) {
+                    return;
+                }
                 if (mode === MODE_OFFSET) {
                     offset = Math.floor(element.offset().top);
                 }
