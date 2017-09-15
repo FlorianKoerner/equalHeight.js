@@ -78,7 +78,6 @@ namespace EqualHeight {
                     hidden = element.attr(this.options.hiddenAttr) === 'true' || this.options.defaultHidden;
 
                 if (false === hidden && element.is(':hidden')) {
-                    console.log(element.data('eqh-height'));
                     // Reset to previous calculated height
                     element.height(element.data('eqh-height'));
 

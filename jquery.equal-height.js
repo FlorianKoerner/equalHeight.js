@@ -52,7 +52,6 @@ var EqualHeight;
             this.elements.each(function (key, val) {
                 var element = jQuery(val), offset = 0, group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode, hidden = element.attr(_this.options.hiddenAttr) === 'true' || _this.options.defaultHidden;
                 if (false === hidden && element.is(':hidden')) {
-                    console.log(element.data('eqh-height'));
                     // Reset to previous calculated height
                     element.height(element.data('eqh-height'));
                     return;
