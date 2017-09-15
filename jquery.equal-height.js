@@ -52,6 +52,9 @@ var EqualHeight;
             this.elements.each(function (key, val) {
                 var element = jQuery(val), offset = 0, group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode, hidden = element.attr(_this.options.hiddenAttr) === 'true' || _this.options.defaultHidden;
                 if (false === hidden && element.is(':hidden')) {
+                    console.log(element.data('eqh-height'));
+                    // Reset to previous calculated height
+                    element.height(element.data('eqh-height'));
                     return;
                 }
                 if (mode === MODE_OFFSET) {
@@ -62,8 +65,6 @@ var EqualHeight;
                 equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset] || jQuery();
                 equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset].add(val);
             });
-            // Reset element height to `auto`
-            this.elements.css('height', 'auto');
             jQuery.each(equalHeightGroups, function (group, modes) {
                 jQuery.each(modes, function (mode, offsets) {
                     jQuery.each(offsets, function (offset, elements) {
@@ -75,6 +76,7 @@ var EqualHeight;
         // Recalculate elements heights
         Plugin.prototype.recalculateElements = function (elements) {
             var maxHeight = 0;
+            elements.height('');
             // Find the max height
             elements.each(function (key, val) {
                 var outerHeight = Math.round(jQuery(val).outerHeight());
@@ -84,8 +86,10 @@ var EqualHeight;
             });
             // Calculate the new height of each element (height without padding and border)
             elements.each(function (key, val) {
-                var element = jQuery(val), negative = element.outerHeight() - element.height();
-                element.height(maxHeight - negative);
+                var element = jQuery(val), negative = element.outerHeight() - element.height(), height = maxHeight - negative;
+                element
+                    .data('eqh-height', height)
+                    .height(height);
             });
         };
         Plugin.prototype.registerListener = function () {
