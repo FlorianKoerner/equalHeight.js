@@ -78,6 +78,10 @@ namespace EqualHeight {
                     hidden = element.attr(this.options.hiddenAttr) === 'true' || this.options.defaultHidden;
 
                 if (false === hidden && element.is(':hidden')) {
+                    console.log(element.data('eqh-height'));
+                    // Reset to previous calculated height
+                    element.height(element.data('eqh-height'));
+
                     return;
                 }
 
@@ -92,9 +96,6 @@ namespace EqualHeight {
                 equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset].add(val);
             });
 
-            // Reset element height to `auto`
-            this.elements.css('height', 'auto');
-
             jQuery.each(equalHeightGroups, (group, modes) => {
                 jQuery.each(modes, (mode, offsets) => {
                     jQuery.each(offsets, (offset, elements) => {
@@ -107,6 +108,8 @@ namespace EqualHeight {
         // Recalculate elements heights
         private recalculateElements(elements: JQuery) {
             var maxHeight = 0;
+
+            elements.height('');
             
             // Find the max height
             elements.each((key, val) => {
@@ -120,9 +123,12 @@ namespace EqualHeight {
             // Calculate the new height of each element (height without padding and border)
             elements.each((key, val) => {
                 var element = jQuery(val),
-                    negative = element.outerHeight() - element.height();
+                    negative = element.outerHeight() - element.height(),
+                    height = maxHeight - negative;
 
-                element.height(maxHeight - negative);
+                element
+                    .data('eqh-height', height)
+                    .height(height);
             });
         }
 
