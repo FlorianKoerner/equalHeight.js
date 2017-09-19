@@ -1,7 +1,7 @@
 {
   "name": "equalHeight.js",
   "main": "jquery.equal-height.js",
-  "version": "4.1.2",
+  "version": "4.1.3",
   "homepage": "https://github.com/FlorianKoerner/equalHeight.js",
   "authors": [
     "Florian Körner <contact@florian-koerner.com>"

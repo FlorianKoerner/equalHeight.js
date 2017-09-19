@@ -42,12 +42,21 @@ var EqualHeight;
             this.registerListener();
             this.recalculate();
         }
+        // Recalculate heights if necessary (browser width has changed)
+        Plugin.prototype.recalculateIfNecessary = function () {
+            var newWindowWidth = jQuery(window).width();
+            // Only recalculate on horizontal resize
+            if (this.windowWidth != newWindowWidth) {
+                this.windowWidth = newWindowWidth;
+                this.recalculate();
+            }
+        };
         // Recalculate heights
         Plugin.prototype.recalculate = function () {
             var _this = this;
             var equalHeightGroups = {};
-            // Responsive float-Fix
-            this.elements.height(1);
+            // Reset height
+            this.elements.height('');
             // Group Elements
             this.elements.each(function (key, val) {
                 var element = jQuery(val), offset = 0, group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode, hidden = element.attr(_this.options.hiddenAttr) === 'true' || _this.options.defaultHidden;
@@ -75,7 +84,6 @@ var EqualHeight;
         // Recalculate elements heights
         Plugin.prototype.recalculateElements = function (elements) {
             var maxHeight = 0;
-            elements.height('');
             // Find the max height
             elements.each(function (key, val) {
                 var outerHeight = Math.round(jQuery(val).outerHeight());
@@ -94,14 +102,7 @@ var EqualHeight;
         Plugin.prototype.registerListener = function () {
             var _this = this;
             // Create resize event listener
-            jQuery(window).on('resize', function () {
-                var newWindowWidth = jQuery(window).width();
-                // Only recalculate on horizontal resize
-                if (_this.windowWidth != newWindowWidth) {
-                    _this.windowWidth = newWindowWidth;
-                    _this.recalculate();
-                }
-            });
+            jQuery(window).on('resize', function () { return _this.recalculateIfNecessary(); });
         };
         return Plugin;
     }());

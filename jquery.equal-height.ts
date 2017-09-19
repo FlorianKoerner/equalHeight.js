@@ -62,12 +62,23 @@ namespace EqualHeight {
             this.recalculate();
         }
 
+        // Recalculate heights if necessary (browser width has changed)
+        public recalculateIfNecessary() {
+            var newWindowWidth = jQuery(window).width();
+
+            // Only recalculate on horizontal resize
+            if (this.windowWidth != newWindowWidth) {
+                this.windowWidth = newWindowWidth;
+                this.recalculate();
+            }
+        }
+
         // Recalculate heights
         public recalculate() {
             var equalHeightGroups = {};
 
-            // Responsive float-Fix
-            this.elements.height(1);
+            // Reset height
+            this.elements.height('');
 
             // Group Elements
             this.elements.each((key, val) => {
@@ -108,8 +119,6 @@ namespace EqualHeight {
         private recalculateElements(elements: JQuery) {
             var maxHeight = 0;
 
-            elements.height('');
-            
             // Find the max height
             elements.each((key, val) => {
                 var outerHeight = Math.round(jQuery(val).outerHeight());
@@ -133,15 +142,7 @@ namespace EqualHeight {
 
         private registerListener() {
             // Create resize event listener
-            jQuery(window).on('resize', () => {
-                var newWindowWidth = jQuery(window).width();
-        
-                // Only recalculate on horizontal resize
-                if (this.windowWidth != newWindowWidth) {
-                    this.windowWidth = newWindowWidth;
-                    this.recalculate();
-                }
-            });
+            jQuery(window).on('resize', () => this.recalculateIfNecessary());
         }
     }
 }
