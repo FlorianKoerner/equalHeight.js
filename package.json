@@ -1,10 +1,11 @@
 {
   "name": "equalheight.js",
-  "version": "4.1.3",
+  "version": "4.2.0",
   "description": "jQuery-Plugin for equal boxes heights",
   "main": "jquery.equal-height.js",
   "scripts": {
-    "build": "npm run-script typescript && npm run-script uglify",
+    "deploy": "npm run build && npm publish",
+    "build": "npm run typescript && npm run uglify",
     "typescript": "./node_modules/.bin/tsc jquery.equal-height.ts",
     "uglify": "./node_modules/.bin/uglifyjs --comments=\"some\" jquery.equal-height.js > jquery.equal-height.min.js"
   },

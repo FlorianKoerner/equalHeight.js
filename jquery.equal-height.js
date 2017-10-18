@@ -33,7 +33,7 @@ var EqualHeight;
             this.windowWidth = jQuery(window).width();
             this.options = jQuery.extend({
                 defaultGroup: 'eqh-default',
-                defaultMode: 'offset',
+                defaultMode: MODE_OFFSET,
                 defaultHidden: false,
                 groupAttr: 'data-eqh',
                 modeAttr: 'data-eqh-mode',
@@ -59,27 +59,57 @@ var EqualHeight;
             this.elements.height('');
             // Group Elements
             this.elements.each(function (key, val) {
-                var element = jQuery(val), offset = 0, group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode, hidden = element.attr(_this.options.hiddenAttr) === 'true' || _this.options.defaultHidden;
+                var element = jQuery(val), group = element.attr(_this.options.groupAttr) || _this.options.defaultGroup, mode = element.attr(_this.options.modeAttr) || _this.options.defaultMode, hidden = element.attr(_this.options.hiddenAttr) === 'true' || _this.options.defaultHidden;
                 if (false === hidden && element.is(':hidden')) {
                     // Reset to previous calculated height
                     element.height(element.data('eqh-height'));
                     return;
                 }
-                if (mode === MODE_OFFSET) {
-                    offset = Math.floor(element.offset().top);
-                }
                 equalHeightGroups[group] = equalHeightGroups[group] || {};
-                equalHeightGroups[group][mode] = equalHeightGroups[group][mode] || {};
-                equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset] || jQuery();
-                equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset].add(val);
+                equalHeightGroups[group][mode] = equalHeightGroups[group][mode] || jQuery();
+                equalHeightGroups[group][mode] = equalHeightGroups[group][mode].add(val);
             });
             jQuery.each(equalHeightGroups, function (group, modes) {
-                jQuery.each(modes, function (mode, offsets) {
-                    jQuery.each(offsets, function (offset, elements) {
-                        _this.recalculateElements(elements);
-                    });
+                jQuery.each(modes, function (mode, elements) {
+                    switch (mode) {
+                        case MODE_OFFSET:
+                            _this.recalculateOffsetModeElements(elements);
+                            break;
+                        case MODE_GROUP:
+                            _this.recalculateGroupModeElements(elements);
+                            break;
+                    }
                 });
             });
+        };
+        // Recalculate Elements with "offset"-Mode
+        Plugin.prototype.recalculateOffsetModeElements = function (elements) {
+            var lowestOffset = null;
+            var lowestOffsetElements = $();
+            var remainedOffsetElements = $();
+            // Recaluculate offsets step by step, to prevent calculation differences by other eqh-Elements
+            elements.each(function (key, val) {
+                var element = jQuery(val), offset = Math.floor(element.offset().top);
+                if (null === lowestOffset || offset < lowestOffset) {
+                    lowestOffset = offset;
+                    remainedOffsetElements = remainedOffsetElements.add(lowestOffsetElements);
+                    lowestOffsetElements = $();
+                }
+                if (offset === lowestOffset) {
+                    lowestOffsetElements = lowestOffsetElements.add(element);
+                }
+                else {
+                    remainedOffsetElements = remainedOffsetElements.add(element);
+                }
+            });
+            this.recalculateElements(lowestOffsetElements);
+            if (remainedOffsetElements.length > 0) {
+                this.recalculateOffsetModeElements(remainedOffsetElements);
+            }
+        };
+        // Recalculate Elements with "group"-Mode
+        Plugin.prototype.recalculateGroupModeElements = function (elements) {
+            this.recalculateElements(elements);
         };
         // Recalculate elements heights
         Plugin.prototype.recalculateElements = function (elements) {

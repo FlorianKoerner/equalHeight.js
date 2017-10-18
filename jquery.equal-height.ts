@@ -50,7 +50,7 @@ namespace EqualHeight {
         constructor(public elements: JQuery, options?: Options) {
             this.options = jQuery.extend({
                 defaultGroup: 'eqh-default',
-                defaultMode: 'offset',
+                defaultMode: MODE_OFFSET,
                 defaultHidden: false,
                 groupAttr: 'data-eqh',
                 modeAttr: 'data-eqh-mode',
@@ -64,7 +64,7 @@ namespace EqualHeight {
 
         // Recalculate heights if necessary (browser width has changed)
         public recalculateIfNecessary() {
-            var newWindowWidth = jQuery(window).width();
+            let newWindowWidth = jQuery(window).width();
 
             // Only recalculate on horizontal resize
             if (this.windowWidth != newWindowWidth) {
@@ -75,15 +75,14 @@ namespace EqualHeight {
 
         // Recalculate heights
         public recalculate() {
-            var equalHeightGroups = {};
+            let equalHeightGroups = {};
 
             // Reset height
             this.elements.height('');
 
             // Group Elements
             this.elements.each((key, val) => {
-                var element = jQuery(val),
-                    offset = 0,
+                let element = jQuery(val),
                     group = element.attr(this.options.groupAttr) || this.options.defaultGroup,
                     mode = element.attr(this.options.modeAttr) || this.options.defaultMode,
                     hidden = element.attr(this.options.hiddenAttr) === 'true' || this.options.defaultHidden;
@@ -95,33 +94,71 @@ namespace EqualHeight {
                     return;
                 }
 
-                if (mode === MODE_OFFSET) {
-                    offset = Math.floor(element.offset().top);
-                }
-
-                equalHeightGroups[group]               = equalHeightGroups[group] || {};
-                equalHeightGroups[group][mode]         = equalHeightGroups[group][mode] || {};
-                equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset] || jQuery();
-
-                equalHeightGroups[group][mode][offset] = equalHeightGroups[group][mode][offset].add(val);
+                equalHeightGroups[group]       = equalHeightGroups[group] || {};
+                equalHeightGroups[group][mode] = equalHeightGroups[group][mode] || jQuery();
+                equalHeightGroups[group][mode] = equalHeightGroups[group][mode].add(val);
             });
 
             jQuery.each(equalHeightGroups, (group, modes) => {
-                jQuery.each(modes, (mode, offsets) => {
-                    jQuery.each(offsets, (offset, elements) => {
-                        this.recalculateElements(elements);
-                    });
+                jQuery.each(modes, (mode, elements) => {
+                    switch (mode) {
+                        case MODE_OFFSET:
+                            this.recalculateOffsetModeElements(elements);
+
+                            break;
+                        
+                        case MODE_GROUP:
+                            this.recalculateGroupModeElements(elements);
+                            
+                            break;
+                    }
                 });
             });
         }
 
+        // Recalculate Elements with "offset"-Mode
+        private recalculateOffsetModeElements(elements: JQuery) {
+            let lowestOffset = null;
+            let lowestOffsetElements = $();
+            let remainedOffsetElements = $();
+
+            // Recaluculate offsets step by step, to prevent calculation differences by other eqh-Elements
+            elements.each((key, val) => {
+                let element = jQuery(val),
+                    offset = Math.floor(element.offset().top);
+
+                if (null === lowestOffset || offset < lowestOffset) {
+                    lowestOffset = offset;
+                    remainedOffsetElements = remainedOffsetElements.add(lowestOffsetElements);
+                    lowestOffsetElements = $();
+                }
+
+                if (offset === lowestOffset) {
+                    lowestOffsetElements = lowestOffsetElements.add(element);
+                } else {
+                    remainedOffsetElements = remainedOffsetElements.add(element);
+                }
+            });
+
+            this.recalculateElements(lowestOffsetElements);
+
+            if (remainedOffsetElements.length > 0) {
+                this.recalculateOffsetModeElements(remainedOffsetElements);
+            }
+        }
+
+        // Recalculate Elements with "group"-Mode
+        private recalculateGroupModeElements(elements: JQuery) {
+            this.recalculateElements(elements);
+        }
+
         // Recalculate elements heights
         private recalculateElements(elements: JQuery) {
-            var maxHeight = 0;
+            let maxHeight = 0;
 
             // Find the max height
             elements.each((key, val) => {
-                var outerHeight = Math.round(jQuery(val).outerHeight());
+                let outerHeight = Math.round(jQuery(val).outerHeight());
 
                 if (outerHeight > maxHeight) {
                     maxHeight = outerHeight;
@@ -130,7 +167,7 @@ namespace EqualHeight {
 
             // Calculate the new height of each element (height without padding and border)
             elements.each((key, val) => {
-                var element = jQuery(val),
+                let element = jQuery(val),
                     negative = element.outerHeight() - element.height(),
                     height = maxHeight - negative;
 
@@ -150,4 +187,4 @@ namespace EqualHeight {
 // Register jQuery-Plugin
 jQuery.fn.equalHeight = function (options?: EqualHeight.Options) {
     return new EqualHeight.Plugin(jQuery(this), options);
-}
+};
