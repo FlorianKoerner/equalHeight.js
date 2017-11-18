@@ -33,7 +33,7 @@
     "jquery": ">=1.9"
   },
   "devDependencies": {
-    "@types/jquery": "^1.10.33",
+    "@types/jquery": "^3.2.16",
     "typescript": "^2.5.2",
     "uglify-js": "^3.1.0"
   }
