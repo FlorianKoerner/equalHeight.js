@@ -1,6 +1,8 @@
 equalHeight.js
 ==============
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/FlorianKoerner/equalHeight.js.svg)](https://greenkeeper.io/)
+
 Applies the same height on all matched elements with the same vertical position.
 Use this jQuery-Plugin as a flexible and stable CSS flexbox alternative.
 Responsive Ready!
